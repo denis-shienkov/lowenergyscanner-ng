@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- QML pages -->
+        <file>qml/lowenergyscanner-ng.qml</file>
+        <file>qml/DevicesPage.qml</file>
+        <file>qml/ServicesPage.qml</file>
+        <file>qml/CharacteristicsPage.qml</file>
+        <file>qml/DescriptorsPage.qml</file>
+        <file>qml/ImageButton.qml</file>
+
+        <!-- Images -->
+        <file>images/search.png</file>
+        <file>images/back.png</file>
+    </qresource>
+</RCC>
