@@ -16,7 +16,7 @@ ApplicationWindow {
     header: ToolBar {
         Material.foreground: "white"
 
-        height: 40
+        height: 50
 
         RowLayout {
             anchors.fill: parent
