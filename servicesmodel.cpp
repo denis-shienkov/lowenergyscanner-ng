@@ -104,14 +104,8 @@ void ServicesModel::update(const QString &deviceAddress)
 
     connect(m_controller, &QLowEnergyController::serviceDiscovered,
             [this](const QBluetoothUuid &serviceUuid) {
-        const auto serviceEnd = m_services.cend();
-        const auto serviceIt = std::find_if(m_services.cbegin(), serviceEnd,
-                                            [serviceUuid](const QLowEnergyService *service)
-        {
-            return service->serviceUuid() == serviceUuid;
-        });
-
-        if (serviceIt != serviceEnd) {
+        const bool containsService = service(serviceUuid.toString());
+        if (containsService) {
             qCWarning(BLE_SERVICES_MODEL) << "Nothing to add, service already is in model:"
                                           << serviceUuid;
             return;
