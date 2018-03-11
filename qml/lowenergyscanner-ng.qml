@@ -139,7 +139,7 @@ ApplicationWindow {
         Timer {
             id: activityTimer
             interval: 5000
-            onTriggered: close();
+            onTriggered: errorPopup.close();
         }
     }
 
