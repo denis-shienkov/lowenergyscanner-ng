@@ -86,7 +86,7 @@ void CharacteriticsModel::update(QObject *service)
 
     beginResetModel();
     m_service = qobject_cast<QLowEnergyService *>(service);
-    m_characteristics.clear();
+    m_characteristicUuids.clear();
     endResetModel();
 
     setRunning(false);
@@ -119,11 +119,11 @@ void CharacteriticsModel::update(QObject *service)
         connect(m_service, &QLowEnergyService::characteristicRead,
                 [this](const QLowEnergyCharacteristic &characteristic, const QByteArray &value) {
             Q_UNUSED(value);
-            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Finish read characteristic:"
-                                               << characteristic.uuid()
+            const auto characteristicUuid = characteristic.uuid();
+            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Characteristic read completed:"
+                                               << characteristicUuid
                                                << value.toHex();
-            const auto row = m_characteristics.indexOf(characteristic);
-            m_characteristics[row] = characteristic;
+            const auto row = m_characteristicUuids.indexOf(characteristicUuid);
             const auto modelIndex = index(row, 0);
             emit dataChanged(modelIndex, modelIndex);
         });
@@ -131,11 +131,11 @@ void CharacteriticsModel::update(QObject *service)
         connect(m_service, &QLowEnergyService::characteristicWritten,
                 [this](const QLowEnergyCharacteristic &characteristic, const QByteArray &value) {
             Q_UNUSED(value);
-            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Finish write characteristic:"
-                                               << characteristic.uuid()
+            const auto characteristicUuid = characteristic.uuid();
+            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Characteristic write completed:"
+                                               << characteristicUuid
                                                << value.toHex();
-            const auto row = m_characteristics.indexOf(characteristic);
-            m_characteristics[row] = characteristic;
+            const auto row = m_characteristicUuids.indexOf(characteristicUuid);
             const auto modelIndex = index(row, 0);
             emit dataChanged(modelIndex, modelIndex);
         });
@@ -143,11 +143,11 @@ void CharacteriticsModel::update(QObject *service)
         connect(m_service, &QLowEnergyService::characteristicChanged,
                 [this](const QLowEnergyCharacteristic &characteristic, const QByteArray &value) {
             Q_UNUSED(value);
-            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Changed characteristic:"
-                                               << characteristic.uuid()
+            const auto characteristicUuid = characteristic.uuid();
+            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Characteristic change completed:"
+                                               << characteristicUuid
                                                << value.toHex();
-            const auto row = m_characteristics.indexOf(characteristic);
-            m_characteristics[row] = characteristic;
+            const auto row = m_characteristicUuids.indexOf(characteristicUuid);
             const auto modelIndex = index(row, 0);
             emit dataChanged(modelIndex, modelIndex);
         });
@@ -155,16 +155,16 @@ void CharacteriticsModel::update(QObject *service)
         connect(m_service, &QLowEnergyService::descriptorWritten,
                 [this](const QLowEnergyDescriptor &descriptor, const QByteArray &value) {
             Q_UNUSED(value);
-            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Finish write descriptor:"
+            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Write descriptor completed:"
                                                << descriptor.uuid()
                                                << value.toHex();
-            for (auto characteristicIt = m_characteristics.begin();
-                 characteristicIt < m_characteristics.end(); ++characteristicIt) {
-                const auto descriptors = characteristicIt->descriptors();
+            for (auto characteristicUuidIt = m_characteristicUuids.cbegin();
+                 characteristicUuidIt < m_characteristicUuids.cend(); ++characteristicUuidIt) {
+                const auto &characteristic = m_service->characteristic(*characteristicUuidIt);
+                const auto &descriptors = characteristic.descriptors();
                 if (!descriptors.contains(descriptor))
                     continue;
-                *characteristicIt = m_service->characteristic(characteristicIt->uuid());
-                const auto row = std::distance(m_characteristics.begin(), characteristicIt);
+                const auto row = std::distance(m_characteristicUuids.cbegin(), characteristicUuidIt);
                 const auto modelIndex = index(row, 0);
                 emit dataChanged(modelIndex, modelIndex);
             }
@@ -181,57 +181,53 @@ void CharacteriticsModel::update(QObject *service)
 
 void CharacteriticsModel::read(const QString &characteristicUuid)
 {
+    const auto &characteristic = m_service->characteristic(
+                QBluetoothUuid(characteristicUuid));
+    if (!characteristic.isValid())
+        return;
+
     qCDebug(BLE_CHARACTERISTICS_MODEL) << "Start read characteristic:"
                                        << characteristicUuid;
 
-    const auto characteristicEnd = m_characteristics.cend();
-    const auto characteristicIt = std::find_if(m_characteristics.cbegin(), characteristicEnd,
-                                               [characteristicUuid](
-                                               const QLowEnergyCharacteristic &characteristic) {
-        return characteristic.uuid() == QBluetoothUuid(characteristicUuid);
-    });
-    if (characteristicIt != characteristicEnd)
-        m_service->readCharacteristic(*characteristicIt);
+    m_service->readCharacteristic(characteristic);
 }
 
 void CharacteriticsModel::write(const QString &characteristicUuid,
                                 const QByteArray &hexValue)
 {
+    const auto &characteristic = m_service->characteristic(
+                QBluetoothUuid(characteristicUuid));
+    if (!characteristic.isValid())
+        return;
+
     qCDebug(BLE_CHARACTERISTICS_MODEL) << "Start write characteristic:"
                                        << characteristicUuid
                                        << hexValue;
 
-    const auto characteristicEnd = m_characteristics.cend();
-    const auto characteristicIt = std::find_if(m_characteristics.cbegin(), characteristicEnd,
-                                               [characteristicUuid](
-                                               const QLowEnergyCharacteristic &characteristic) {
-        return characteristic.uuid() == QBluetoothUuid(characteristicUuid);
-    });
-    if (characteristicIt != characteristicEnd)
-        m_service->writeCharacteristic(*characteristicIt, QByteArray::fromHex(hexValue));
+    m_service->writeCharacteristic(characteristic, QByteArray::fromHex(hexValue));
 }
 
 void CharacteriticsModel::enableNotification(const QString &characteristicUuid,
                                              bool enable)
 {
-    qCDebug(BLE_CHARACTERISTICS_MODEL) << "Start notification enable for config descriptor of characteristic:"
-                                       << characteristicUuid
-                                       << enable;
+    const auto &characteristic = m_service->characteristic(
+                QBluetoothUuid(characteristicUuid));
+    if (!characteristic.isValid())
+        return;
 
-    const auto characteristicEnd = m_characteristics.cend();
-    const auto characteristicIt = std::find_if(m_characteristics.cbegin(), characteristicEnd,
-                                               [characteristicUuid](
-                                               const QLowEnergyCharacteristic &characteristic) {
-        return characteristic.uuid() == QBluetoothUuid(characteristicUuid);
-    });
-    if (characteristicIt != characteristicEnd) {
-        const auto configDescriptor = characteristicIt->descriptor(
-                    QBluetoothUuid::ClientCharacteristicConfiguration);
-        if (configDescriptor.isValid()) {
-            m_service->writeDescriptor(configDescriptor, enable ? QByteArray::fromHex("0100")
-                                                                : QByteArray::fromHex("0000"));
-        }
-    }
+    const auto &configDescriptor = characteristic.descriptor(
+                QBluetoothUuid::ClientCharacteristicConfiguration);
+    if (!configDescriptor.isValid())
+        return;
+
+    const auto value = enable ? QByteArray::fromHex("0100")
+                              : QByteArray::fromHex("0000");
+
+    qCDebug(BLE_CHARACTERISTICS_MODEL) << "Start write descriptor:"
+                                       << configDescriptor.uuid()
+                                       << value.toHex();
+
+    m_service->writeDescriptor(configDescriptor, value);
 }
 
 QObject *CharacteriticsModel::service() const
@@ -243,16 +239,17 @@ void CharacteriticsModel::updateCharacteristics()
 {
     const auto characteristics = m_service->characteristics();
     for (const auto &characteristic : characteristics) {
-        if (m_characteristics.contains(characteristic)) {
+        const auto characteristicUuid = characteristic.uuid();
+        if (m_characteristicUuids.contains(characteristicUuid)) {
             qCWarning(BLE_CHARACTERISTICS_MODEL) << "Nothing to add, characteristic already is in model:"
-                                                 << characteristic.uuid();
+                                                 << characteristicUuid;
             continue;
         }
 
-        qCDebug(BLE_CHARACTERISTICS_MODEL) << "Add characteristic:" << characteristic.uuid();
-        const auto rowsCount = m_characteristics.count();
+        qCDebug(BLE_CHARACTERISTICS_MODEL) << "Add characteristic:" << characteristicUuid;
+        const auto rowsCount = m_characteristicUuids.count();
         beginInsertRows(QModelIndex(), rowsCount, rowsCount);
-        m_characteristics.append(characteristic);
+        m_characteristicUuids.append(characteristicUuid);
         endInsertRows();
     }
 }
@@ -260,18 +257,22 @@ void CharacteriticsModel::updateCharacteristics()
 int CharacteriticsModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_characteristics.count();
+    return m_characteristicUuids.count();
 }
 
 QVariant CharacteriticsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() < 0)
         return QVariant();
-    if (index.row() >= m_characteristics.count())
+    if (index.row() >= m_characteristicUuids.count())
         return QVariant();
 
     const auto row = index.row();
-    const auto characteristic = m_characteristics.at(row);
+    const auto characteristicUuid = m_characteristicUuids.at(row);
+    const auto characteristic = m_service->characteristic(characteristicUuid);
+    if (!characteristic.isValid())
+        return QVariant();
+
     const auto properties = characteristic.properties();
     const auto configDescriptor = characteristic.descriptor(
                 QBluetoothUuid::ClientCharacteristicConfiguration);

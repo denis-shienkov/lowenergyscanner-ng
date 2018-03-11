@@ -1,7 +1,7 @@
 #ifndef CHARACTERISTICSMODEL_H
 #define CHARACTERISTICSMODEL_H
 
-#include <QLowEnergyService>
+#include <QBluetoothUuid>
 #include <QAbstractListModel>
 #include <QPointer>
 
@@ -47,7 +47,7 @@ private:
 
     bool m_running = false;
     QPointer<QLowEnergyService> m_service;
-    QVector<QLowEnergyCharacteristic> m_characteristics;
+    QVector<QBluetoothUuid> m_characteristicUuids;
 };
 
 #endif // CHARACTERISTICSMODEL_H
