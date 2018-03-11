@@ -9,8 +9,8 @@ ListView {
     model: characteristicsModel
     delegate: Button {
         width: parent.width
-        height: 150
         contentItem: ColumnLayout {
+            spacing: 0
             Label {
                 id: captionsLabel
                 text: qsTr("%1\n%2\n%3").arg(name).arg(uuid).arg(props)
@@ -47,6 +47,7 @@ ListView {
             }
             Label {
                 id: valueLabel
+                visible: readable || notifyable || indicatable
                 text: qsTr("%1").arg(value)
                 font.capitalization: Font.AllUppercase
                 horizontalAlignment: Qt.AlignHCenter

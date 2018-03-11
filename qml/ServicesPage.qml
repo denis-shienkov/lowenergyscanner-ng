@@ -9,7 +9,6 @@ ListView {
     model: servicesModel
     delegate: Button {
         width: parent.width
-        height: 70
         text: qsTr("%1\n%2").arg(name).arg(uuid)
         onClicked: {
             errorLabel.text = qsTr("");
