@@ -35,7 +35,7 @@ ListView {
                     text: qsTr("N")
                     checkable: true
                     checked: notificationEnabled
-                    onCheckedChanged: characteristicsModel.enableNotifications(uuid, checked);
+                    onCheckedChanged: characteristicsModel.enableNotification(uuid, checked);
                 }
                 ToolButton {
                     visible: indicatable

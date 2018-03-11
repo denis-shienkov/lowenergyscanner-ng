@@ -14,8 +14,8 @@ enum {
     CharacteristicReadableRole,
     CharacteristicNotifyableRole,
     CharacteristicIndicatableRole,
-    CharacteristicNotificationsEnabledRole,
-    CharacteristicIndicationsEnabledRole,
+    CharacteristicNotificationEnabledRole,
+    CharacteristicIndicationEnabledRole,
     CharacteristicValueRole
 };
 
@@ -199,8 +199,8 @@ void CharacteriticsModel::write(const QString &characteristicUuid,
         m_service->writeCharacteristic(*characteristicIt, QByteArray::fromHex(hexValue));
 }
 
-void CharacteriticsModel::enableNotifications(const QString &characteristicUuid,
-                                              bool enable)
+void CharacteriticsModel::enableNotification(const QString &characteristicUuid,
+                                             bool enable)
 {
     qCDebug(BLE_CHARACTERISTICS_MODEL) << "Start notification enable for config descriptor of characteristic:"
                                        << characteristicUuid
@@ -281,10 +281,10 @@ QVariant CharacteriticsModel::data(const QModelIndex &index, int role) const
         return bool(properties & (QLowEnergyCharacteristic::Notify));
     case CharacteristicIndicatableRole:
         return bool(properties & (QLowEnergyCharacteristic::Indicate));
-    case CharacteristicNotificationsEnabledRole:
+    case CharacteristicNotificationEnabledRole:
         return configDescriptor.isValid()
                 && configDescriptor.value() == QByteArray::fromHex("0100");
-    case CharacteristicIndicationsEnabledRole:
+    case CharacteristicIndicationEnabledRole:
         return configDescriptor.isValid()
                 && configDescriptor.value() == QByteArray::fromHex("0200");
     case CharacteristicValueRole:
@@ -306,8 +306,8 @@ QHash<int, QByteArray> CharacteriticsModel::roleNames() const
         { CharacteristicReadableRole, "readable" },
         { CharacteristicNotifyableRole, "notifyable" },
         { CharacteristicIndicatableRole, "indicatable" },
-        { CharacteristicNotificationsEnabledRole, "notificationEnabled" },
-        { CharacteristicIndicationsEnabledRole, "indicationEnabled" },
+        { CharacteristicNotificationEnabledRole, "notificationEnabled" },
+        { CharacteristicIndicationEnabledRole, "indicationEnabled" },
         { CharacteristicValueRole, "value" }
     };
 }
