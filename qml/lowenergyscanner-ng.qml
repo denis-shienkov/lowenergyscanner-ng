@@ -52,6 +52,7 @@ ApplicationWindow {
             ComboBox {
                 id: searchTimeoutsBox
                 enabled: !devicesModel.running
+                visible: stackView.depth === 1
                 model: [ 1000, 2000, 5000 ]
             }
 
