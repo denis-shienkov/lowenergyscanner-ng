@@ -255,7 +255,6 @@ QVariant CharacteriticsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() < 0)
         return QVariant();
-
     if (index.row() >= m_characteristics.count())
         return QVariant();
 
@@ -282,13 +281,12 @@ QVariant CharacteriticsModel::data(const QModelIndex &index, int role) const
         return bool(properties & (QLowEnergyCharacteristic::Notify));
     case CharacteristicIndicatableRole:
         return bool(properties & (QLowEnergyCharacteristic::Indicate));
-    case CharacteristicNotificationsEnabledRole: {
-        const auto value = configDescriptor.value();
-        qCDebug(BLE_CHARACTERISTICS_MODEL) << "CH:" << characteristic.uuid() << "V:" << value.toHex();
-        return configDescriptor.isValid() && value == QByteArray::fromHex("0100");
-    }
+    case CharacteristicNotificationsEnabledRole:
+        return configDescriptor.isValid()
+                && configDescriptor.value() == QByteArray::fromHex("0100");
     case CharacteristicIndicationsEnabledRole:
-        return configDescriptor.isValid() && configDescriptor.value() == QByteArray::fromHex("0200");
+        return configDescriptor.isValid()
+                && configDescriptor.value() == QByteArray::fromHex("0200");
     case CharacteristicValueRole:
         return characteristic.value().toHex();
     default:
