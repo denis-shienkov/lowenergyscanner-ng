@@ -11,7 +11,7 @@ ListView {
         width: parent.width
         text: qsTr("%1\n%2").arg(name).arg(uuid)
         onClicked: {
-            errorLabel.text = qsTr("");
+            errorPopup.close();
             var service = servicesModel.service(uuid);
             characteristicsModel.update(service);
             stackView.push("qrc:/qml/CharacteristicsPage.qml");

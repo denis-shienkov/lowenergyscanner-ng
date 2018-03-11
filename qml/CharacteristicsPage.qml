@@ -35,7 +35,7 @@ ListView {
                     text: qsTr("N")
                     checkable: true
                     checked: notificationEnabled
-                    onCheckedChanged: characteristicsModel.enableNotification(uuid, checked);
+                    onClicked: characteristicsModel.enableNotification(uuid, checked);
                 }
                 ToolButton {
                     visible: indicatable
@@ -55,7 +55,7 @@ ListView {
             }
         }
         onClicked: {
-            errorLabel.text = qsTr("");
+            errorPopup.close();
             var service = characteristicsModel.service();
             descriptorsModel.update(service, uuid);
             stackView.push("qrc:/qml/DescriptorsPage.qml");

@@ -28,7 +28,7 @@ ApplicationWindow {
                 visible: stackView.depth === 1
                 source: "qrc:/images/search.png"
                 onClicked: {
-                    errorLabel.text = qsTr("");
+                    errorPopup.close();
                     devicesModel.update();
                 }
                 Layout.fillHeight: true
@@ -40,8 +40,8 @@ ApplicationWindow {
                 source: "qrc:/images/back.png"
                 onClicked: {
                     if (stackView.depth > 1) {
+                        errorPopup.close();
                         stackView.pop();
-                        errorLabel.text = qsTr("");
                     } else {
                         // do something
                     }
@@ -115,26 +115,48 @@ ApplicationWindow {
         }
     }
 
-    Label {
-        id: errorLabel
-        anchors.centerIn: parent
-        color: "red"
+    Popup {
+        id: errorPopup
+
+        function showError(errorString) {
+            label.text = errorString;
+            open();
+            activityTimer.start();
+        }
+
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        contentItem: Label {
+            id: label
+            color: "red"
+        }
+
+        onClosed: {
+            activityTimer.stop();
+            label.text = "";
+        }
+
+        Timer {
+            id: activityTimer
+            interval: 5000
+            onTriggered: close();
+        }
     }
 
     DevicesModel {
         id: devicesModel
         discoveryTimeout: searchTimeoutsBox.currentText
-        onErrorOccurred: errorLabel.text = errorString;
+        onErrorOccurred: errorPopup.showError(errorString);
     }
 
     ServicesModel {
         id: servicesModel
-        onErrorOccurred: errorLabel.text = errorString;
+        onErrorOccurred: errorPopup.showError(errorString);
     }
 
     CharacteriticsModel {
         id: characteristicsModel
-        onErrorOccurred: errorLabel.text = errorString;
+        onErrorOccurred: errorPopup.showError(errorString);
     }
 
     DescriptorsModel {
