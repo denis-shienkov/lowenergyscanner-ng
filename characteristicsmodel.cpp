@@ -140,6 +140,18 @@ void CharacteriticsModel::update(QObject *service)
             emit dataChanged(modelIndex, modelIndex);
         });
 
+        connect(m_service, &QLowEnergyService::characteristicChanged,
+                [this](const QLowEnergyCharacteristic &characteristic, const QByteArray &value) {
+            Q_UNUSED(value);
+            qCDebug(BLE_CHARACTERISTICS_MODEL) << "Changed characteristic:"
+                                               << characteristic.uuid()
+                                               << value.toHex();
+            const auto row = m_characteristics.indexOf(characteristic);
+            m_characteristics[row] = characteristic;
+            const auto modelIndex = index(row, 0);
+            emit dataChanged(modelIndex, modelIndex);
+        });
+
         connect(m_service, &QLowEnergyService::descriptorWritten,
                 [this](const QLowEnergyDescriptor &descriptor, const QByteArray &value) {
             Q_UNUSED(value);
