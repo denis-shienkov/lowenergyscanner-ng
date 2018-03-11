@@ -44,6 +44,20 @@ DevicesModel::DevicesModel(QObject *parent)
             this, &DevicesModel::errorOccurred);
 }
 
+int DevicesModel::discoveryTimeout() const
+{
+    return m_discoveryAgent->lowEnergyDiscoveryTimeout();
+}
+
+void DevicesModel::setDiscoveryTimeout(int discoveryTimeout)
+{
+    if (m_discoveryAgent->lowEnergyDiscoveryTimeout() == discoveryTimeout)
+        return;
+    m_discoveryAgent->setLowEnergyDiscoveryTimeout(discoveryTimeout);
+    qCDebug(BLE_DEVICES_MODEL) << "Set discovery timeout:" << discoveryTimeout;
+    emit discoveryTimeoutChanged(discoveryTimeout);
+}
+
 bool DevicesModel::isRunning() const
 {
     return m_running;

@@ -10,11 +10,17 @@ class DevicesModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(int discoveryTimeout READ discoveryTimeout
+               WRITE setDiscoveryTimeout NOTIFY discoveryTimeoutChanged)
+
     Q_PROPERTY(bool running READ isRunning NOTIFY runningChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorOccurred)
 
 public:
     explicit DevicesModel(QObject *parent = nullptr);
+
+    int discoveryTimeout() const;
+    void setDiscoveryTimeout(int discoveryTimeout);
 
     bool isRunning() const;
     QString errorString() const;
@@ -22,6 +28,8 @@ public:
     Q_INVOKABLE void update();
 
 signals:
+    void discoveryTimeoutChanged(int discoveryTimeout);
+
     void runningChanged(bool running);
     void errorOccurred();
 
