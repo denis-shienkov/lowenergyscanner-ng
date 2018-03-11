@@ -114,6 +114,11 @@ void CharacteriticsModel::update(QObject *service)
             setRunning(false);
             if (error != QLowEnergyService::DescriptorReadError)
                 emit errorOccurred();
+
+            // Update whole model data.
+            const auto topLeftModelIndex = index(0, 0);
+            const auto bottomRightModelIndex = index(m_characteristicUuids.count() - 1, 0);
+            emit dataChanged(topLeftModelIndex, bottomRightModelIndex);
         });
 
         connect(m_service, &QLowEnergyService::characteristicRead,
