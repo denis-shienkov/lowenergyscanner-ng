@@ -74,7 +74,6 @@ void ServicesModel::update(const QString &deviceAddress)
 
     connect(m_controller, &QLowEnergyController::stateChanged,
             [this](QLowEnergyController::ControllerState state) {
-        qCDebug(BLE_SERVICES_MODEL) << "STATE:" << state;
         switch (state) {
         case QLowEnergyController::ConnectingState:
         case QLowEnergyController::DiscoveringState:
