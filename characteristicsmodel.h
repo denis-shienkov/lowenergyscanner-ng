@@ -29,6 +29,8 @@ public:
 
     Q_INVOKABLE void enableNotification(const QString &characteristicUuid,
                                         bool enable);
+    Q_INVOKABLE void enableIndication(const QString &characteristicUuid,
+                                      bool enable);
 
     Q_INVOKABLE QObject *service() const;
 

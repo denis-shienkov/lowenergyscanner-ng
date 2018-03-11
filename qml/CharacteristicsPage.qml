@@ -42,6 +42,7 @@ ListView {
                     text: qsTr("I")
                     checkable: true
                     checked: indicationEnabled
+                    onClicked: characteristicsModel.enableIndication(uuid, checked);
                 }
                 Layout.alignment: Qt.AlignHCenter
             }

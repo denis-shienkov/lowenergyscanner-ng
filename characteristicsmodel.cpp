@@ -230,6 +230,29 @@ void CharacteriticsModel::enableNotification(const QString &characteristicUuid,
     m_service->writeDescriptor(configDescriptor, value);
 }
 
+void CharacteriticsModel::enableIndication(const QString &characteristicUuid,
+                                           bool enable)
+{
+    const auto &characteristic = m_service->characteristic(
+                QBluetoothUuid(characteristicUuid));
+    if (!characteristic.isValid())
+        return;
+
+    const auto &configDescriptor = characteristic.descriptor(
+                QBluetoothUuid::ClientCharacteristicConfiguration);
+    if (!configDescriptor.isValid())
+        return;
+
+    const auto value = enable ? QByteArray::fromHex("0200")
+                              : QByteArray::fromHex("0000");
+
+    qCDebug(BLE_CHARACTERISTICS_MODEL) << "Start write descriptor:"
+                                       << configDescriptor.uuid()
+                                       << value.toHex();
+
+    m_service->writeDescriptor(configDescriptor, value);
+}
+
 QObject *CharacteriticsModel::service() const
 {
     return m_service;
