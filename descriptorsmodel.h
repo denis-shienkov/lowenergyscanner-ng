@@ -1,9 +1,8 @@
 #ifndef DESCRIPTORSMODEL_H
 #define DESCRIPTORSMODEL_H
 
+#include <QLowEnergyDescriptor>
 #include <QAbstractListModel>
-
-class QLowEnergyDescriptor;
 
 class DescriptorsModel : public QAbstractListModel
 {
