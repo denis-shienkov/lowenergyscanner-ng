@@ -48,6 +48,12 @@ ApplicationWindow {
                 Layout.fillHeight: true
             }
 
+            ComboBox {
+                id: searchTimeoutsBox
+                enabled: !devicesModel.running
+                model: [ 1000, 2000, 5000 ]
+            }
+
             Label {
                 id: titleLabel
                 visible: stackView.depth > 0
@@ -115,6 +121,7 @@ ApplicationWindow {
 
     DevicesModel {
         id: devicesModel
+        discoveryTimeout: searchTimeoutsBox.currentText
         onErrorOccurred: errorLabel.text = errorString;
     }
 
