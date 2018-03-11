@@ -90,6 +90,7 @@ ApplicationWindow {
 
     BusyIndicator {
         id: busyIndicator
+        anchors.centerIn: parent
         running: devicesModel.running || servicesModel.running || characteristicsModel.running
         Label {
             anchors.centerIn: parent
