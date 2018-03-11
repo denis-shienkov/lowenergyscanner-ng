@@ -24,6 +24,7 @@ ApplicationWindow {
 
             ImageButton {
                 id: searchButton
+                enabled: !devicesModel.running
                 visible: stackView.depth === 1
                 source: "qrc:/images/search.png"
                 onClicked: {
